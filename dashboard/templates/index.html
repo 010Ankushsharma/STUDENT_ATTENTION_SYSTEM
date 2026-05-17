@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attention Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════ */
+        /* ROOT & RESET                                        */
+        /* ═══════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-card: #1e2538;
+            --bg-hover: #252d40;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --text-muted: #6b7280;
+            --border: #2d3548;
+            --accent: #6764f6;
+            --accent-light: #93a1ff;
+            --green: #34d399;
+            --green-bg: rgba(52, 211, 153, 0.1);
+            --yellow: #fbbf24;
+            --yellow-bg: rgba(251, 191, 36, 0.1);
+            --red: #f87171;
+            --red-bg: rgba(248, 113, 113, 0.1);
+            --blue: #60a5fa;
+            --blue-bg: rgba(96, 165, 250, 0.1);
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* HEADER                                              */
+        /* ═══════════════════════════════════════════════════ */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .header-actions {
+            display: flex; gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover { background: var(--bg-hover); border-color: var(--accent); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); }
+        .btn-primary:hover { background: var(--accent-light); }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* MAIN LAYOUT                                         */
+        /* ═══════════════════════════════════════════════════ */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+            padding: 20px 32px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .main { grid-template-columns: 1fr; }
+        }
+
+        .left-panel { display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { display: flex; flex-direction: column; gap: 20px; }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* CARDS                                                */
+        /* ═══════════════════════════════════════════════════ */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-badge {
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: var(--accent);
+            color: white;
+        }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* STATS ROW                                           */
+        /* ═══════════════════════════════════════════════════ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .stat-attentive .stat-value { color: var(--green); }
+        .stat-distracted .stat-value { color: var(--yellow); }
+        .stat-sleepy .stat-value { color: var(--red); }
+        .stat-away .stat-value { color: var(--blue); }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* VIDEO FEED                                          */
+        /* ═══════════════════════════════════════════════════ */
+        .video-container {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16/9;
+        }
+
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 12px; left: 12px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--green);
+        }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* CHARTS                                              */
+        /* ═══════════════════════════════════════════════════ */
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* STUDENT LIST                                        */
+        /* ═══════════════════════════════════════════════════ */
+        .student-list {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            transition: background 0.2s;
+        }
+
+        .student-item:hover { background: var(--bg-hover); }
+
+        .student-rank {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+        }
+
+        .student-info { flex: 1; }
+
+        .student-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .student-state {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .student-score {
+            text-align: right;
+        }
+
+        .student-score-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .student-score-bar {
+            width: 60px; height: 4px;
+            background: var(--bg-primary);
+            border-radius: 2px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .student-score-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .state-attentive { color: var(--green); }
+        .state-distracted { color: var(--yellow); }
+        .state-sleepy { color: var(--red); }
+        .state-looking_away { color: var(--blue); }
+
+        .fill-attentive { background: var(--green); }
+        .fill-distracted { background: var(--yellow); }
+        .fill-sleepy { background: var(--red); }
+        .fill-looking_away { background: var(--blue); }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* ALERTS PANEL                                        */
+        /* ═══════════════════════════════════════════════════ */
+        .alerts-list {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.82rem;
+            border-left: 3px solid;
+        }
+
+        .alert-critical {
+            background: var(--red-bg);
+            border-left-color: var(--red);
+        }
+
+        .alert-warning {
+            background: var(--yellow-bg);
+            border-left-color: var(--yellow);
+        }
+
+        .alert-message { margin-bottom: 2px; }
+
+        .alert-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* DISTRIBUTION DONUT                                   */
+        /* ═══════════════════════════════════════════════════ */
+        .donut-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .donut-chart {
+            width: 120px; height: 120px;
+        }
+
+        .donut-legend {
+            flex: 1;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+        }
+
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* CLASS AVG GAUGE                                     */
+        /* ═══════════════════════════════════════════════════ */
+        .gauge-container {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .gauge-value {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .gauge-label {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .gauge-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease, background 0.5s ease;
+        }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* SCROLLBAR                                           */
+        /* ═══════════════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* ═══════════════════════════════════════════════════ */
+        /* EMPTY STATE                                         */
+        /* ═══════════════════════════════════════════════════ */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .empty-state-icon { font-size: 2.5rem; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="header">
+    <div class="header-left">
+        <h1>🎓 Student Attention Dashboard</h1>
+        <div class="header-status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        <a href="/api/export/csv" class="btn" title="Download CSV Report">📊 CSV</a>
+        <a href="/api/export/excel" class="btn" title="Download Excel Report">📁 Excel</a>
+        <button class="btn" onclick="toggleVideo()">📹 Toggle Feed</button>
+    </div>
+</header>
+
+<!-- ═══════════════════ STATS ROW ═══════════════════════ -->
+<div style="padding: 20px 32px 0; max-width: 1800px; margin: 0 auto;">
+    <div class="stats-row">
+        <div class="stat-card stat-attentive">
+            <div class="stat-value" id="statAttentive">0</div>
+            <div class="stat-label">🟢 Attentive</div>
+        </div>
+        <div class="stat-card stat-distracted">
+            <div class="stat-value" id="statDistracted">0</div>
+            <div class="stat-label">🟡 Distracted</div>
+        </div>
+        <div class="stat-card stat-sleepy">
+            <div class="stat-value" id="statSleepy">0</div>
+            <div class="stat-label">🔴 Sleepy</div>
+        </div>
+        <div class="stat-card stat-away">
+            <div class="stat-value" id="statAway">0</div>
+            <div class="stat-label">🔵 Looking Away</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════ MAIN GRID ═══════════════════════ -->
+<div class="main">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+        <!-- Live Video Feed -->
+        <div class="card" id="videoCard">
+            <div class="card-header">
+                <span class="card-title">Live Webcam Feed</span>
+                <span class="card-badge" id="feedFps">LIVE</span>
+            </div>
+            <div class="video-container">
+                <img id="videoFeed" src="/video_feed" alt="Live Feed">
+                <div class="video-overlay">
+                    <span class="status-dot" style="display:inline-block;width:6px;height:6px;"></span>
+                    LIVE
+                </div>
+            </div>
+        </div>
+
+        <!-- Attention Timeline Chart -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Class Attention Over Time</span>
+                <span class="card-badge" id="chartStudents">0 students</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- State Distribution -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">State Distribution</span>
+            </div>
+            <div class="donut-container">
+                <div class="donut-chart">
+                    <canvas id="donutChart"></canvas>
+                </div>
+                <div class="donut-legend" id="donutLegend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:var(--green)"></div>
+                        <span>Attentive: <b id="legendAttentive">0%</b></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:var(--yellow)"></div>
+                        <span>Distracted: <b id="legendDistracted">0%</b></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:var(--red)"></div>
+                        <span>Sleepy: <b id="legendSleepy">0%</b></span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:var(--blue)"></div>
+                        <span>Looking Away: <b id="legendAway">0%</b></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+        <!-- Class Average Gauge -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Class Average Score</span>
+            </div>
+            <div class="gauge-container">
+                <div class="gauge-value" id="gaugeValue">--</div>
+                <div class="gauge-label">Attention Score</div>
+                <div class="gauge-bar">
+                    <div class="gauge-fill" id="gaugeFill" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Leaderboard -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Student Leaderboard</span>
+                <span class="card-badge" id="totalStudents">0</span>
+            </div>
+            <div class="student-list" id="studentList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    Waiting for students...
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts Panel -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Recent Alerts</span>
+                <span class="card-badge" id="alertCount">0</span>
+            </div>
+            <div class="alerts-list" id="alertsList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">✅</div>
+                    No alerts yet
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════════ -->
+<script>
+// ─────────── Configuration ───────────
+const WS_URL = `ws://${window.location.host}/ws`;
+const UPDATE_CHARTS_EVERY = 5000;  // ms
+
+// ─────────── State ───────────
+let ws = null;
+let timelineChart = null;
+let donutChart = null;
+let timelineData = [];
+let videoVisible = true;
+
+// ─────────── WebSocket Connection ───────────
+function connectWebSocket() {
+    ws = new WebSocket(WS_URL);
+
+    ws.onopen = () => {
+        document.getElementById('statusDot').style.background = 'var(--green)';
+        document.getElementById('statusText').textContent = 'Connected • Live';
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'update') {
+            updateDashboard(data);
+        }
+    };
+
+    ws.onclose = () => {
+        document.getElementById('statusDot').style.background = 'var(--red)';
+        document.getElementById('statusText').textContent = 'Disconnected';
+        // Reconnect after 2s
+        setTimeout(connectWebSocket, 2000);
+    };
+
+    ws.onerror = () => {
+        ws.close();
+    };
+}
+
+// ─────────── Update Dashboard ───────────
+function updateDashboard(data) {
+    const summary = data.class_summary || {};
+    const students = data.students || [];
+    const alerts = data.recent_alerts || [];
+
+    // Update stat cards
+    document.getElementById('statAttentive').textContent = summary.attentive || 0;
+    document.getElementById('statDistracted').textContent = summary.distracted || 0;
+    document.getElementById('statSleepy').textContent = summary.sleepy || 0;
+    document.getElementById('statAway').textContent = summary.looking_away || 0;
+
+    // Update gauge
+    const avg = summary.avg_score || 0;
+    const avgPct = Math.round(avg * 100);
+    document.getElementById('gaugeValue').textContent = avgPct + '%';
+    const gaugeFill = document.getElementById('gaugeFill');
+    gaugeFill.style.width = avgPct + '%';
+    if (avgPct >= 75) gaugeFill.style.background = 'var(--green)';
+    else if (avgPct >= 45) gaugeFill.style.background = 'var(--yellow)';
+    else gaugeFill.style.background = 'var(--red)';
+
+    // Update student list
+    updateStudentList(students);
+
+    // Update alerts
+    updateAlerts(alerts);
+
+    // Track timeline
+    timelineData.push({ time: Date.now(), avg: avg });
+    if (timelineData.length > 300) timelineData.shift();
+
+    // Update badges
+    document.getElementById('totalStudents').textContent = students.length;
+    document.getElementById('chartStudents').textContent = students.length + ' students';
+}
+
+// ─────────── Student List ───────────
+function updateStudentList(students) {
+    const container = document.getElementById('studentList');
+    if (students.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div>Waiting for students...</div>';
+        return;
+    }
+
+    // Sort by score descending
+    students.sort((a, b) => b.score - a.score);
+
+    let html = '';
+    students.forEach((s, i) => {
+        const scorePct = Math.round(s.score * 100);
+        const stateClass = 'state-' + s.state;
+        const fillClass = 'fill-' + s.state;
+        html += `
+            <div class="student-item">
+                <div class="student-rank">${i + 1}</div>
+                <div class="student-info">
+                    <div class="student-name">Student ${s.id}</div>
+                    <div class="student-state ${stateClass}">${s.state.replace('_', ' ')}</div>
+                </div>
+                <div class="student-score">
+                    <div class="student-score-value ${stateClass}">${scorePct}%</div>
+                    <div class="student-score-bar">
+                        <div class="student-score-fill ${fillClass}" style="width:${scorePct}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// ─────────── Alerts ───────────
+function updateAlerts(alerts) {
+    const container = document.getElementById('alertsList');
+    document.getElementById('alertCount').textContent = alerts.length;
+
+    if (alerts.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div>No alerts yet</div>';
+        return;
+    }
+
+    let html = '';
+    alerts.forEach(a => {
+        const cls = a.severity === 'critical' ? 'alert-critical' : 'alert-warning';
+        const icon = a.severity === 'critical' ? '🔴' : '🟡';
+        html += `
+            <div class="alert-item ${cls}">
+                <div class="alert-message">${icon} ${a.message}</div>
+                <div class="alert-meta">Student ${a.student_id} • ${a.type}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// ─────────── Charts ───────────
+function initCharts() {
+    // Timeline Chart
+    const tlCtx = document.getElementById('timelineChart').getContext('2d');
+    timelineChart = new Chart(tlCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Class Avg Attention',
+                data: [],
+                borderColor: '#6764f6',
+                backgroundColor: 'rgba(103, 100, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 300 },
+            scales: {
+                x: {
+                    display: true,
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#6b7280', maxTicksLimit: 8 },
+                },
+                y: {
+                    display: true,
+                    min: 0, max: 1,
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: {
+                        color: '#6b7280',
+                        callback: v => Math.round(v * 100) + '%',
+                    },
+                }
+            },
+            plugins: {
+                legend: { display: false },
+            }
+        }
+    });
+
+    // Donut Chart
+    const dCtx = document.getElementById('donutChart').getContext('2d');
+    donutChart = new Chart(dCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Attentive', 'Distracted', 'Sleepy', 'Looking Away'],
+            datasets: [{
+                data: [25, 25, 25, 25],
+                backgroundColor: ['#34d399', '#fbbf24', '#f87171', '#60a5fa'],
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '65%',
+            plugins: {
+                legend: { display: false },
+            }
+        }
+    });
+}
+
+function updateCharts() {
+    // Update timeline
+    if (timelineChart && timelineData.length > 0) {
+        const labels = timelineData.map((d, i) => {
+            const secs = Math.round((Date.now() - d.time) / 1000);
+            return secs > 60 ? Math.round(secs / 60) + 'm' : secs + 's';
+        }).reverse();
+        const values = timelineData.map(d => d.avg).reverse();
+
+        // Show last 60 points
+        const showCount = Math.min(60, values.length);
+        timelineChart.data.labels = labels.slice(-showCount);
+        timelineChart.data.datasets[0].data = values.slice(-showCount);
+        timelineChart.update('none');
+    }
+
+    // Update donut from API
+    fetch('/api/analytics/distribution')
+        .then(r => r.json())
+        .then(data => {
+            const dist = data.distribution || {};
+            const vals = [
+                dist.attentive || 0,
+                dist.distracted || 0,
+                dist.sleepy || 0,
+                dist.looking_away || 0,
+            ];
+            if (donutChart) {
+                donutChart.data.datasets[0].data = vals;
+                donutChart.update('none');
+            }
+            document.getElementById('legendAttentive').textContent = (vals[0] || 0).toFixed(1) + '%';
+            document.getElementById('legendDistracted').textContent = (vals[1] || 0).toFixed(1) + '%';
+            document.getElementById('legendSleepy').textContent = (vals[2] || 0).toFixed(1) + '%';
+            document.getElementById('legendAway').textContent = (vals[3] || 0).toFixed(1) + '%';
+        })
+        .catch(() => {});
+}
+
+// ─────────── Toggle Video ───────────
+function toggleVideo() {
+    const card = document.getElementById('videoCard');
+    videoVisible = !videoVisible;
+    card.style.display = videoVisible ? 'block' : 'none';
+}
+
+// ─────────── Init ───────────
+document.addEventListener('DOMContentLoaded', () => {
+    initCharts();
+    connectWebSocket();
+    setInterval(updateCharts, UPDATE_CHARTS_EVERY);
+});
+</script>
+
+</body>
+</html>
+

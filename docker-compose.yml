@@ -1,0 +1,28 @@
+
+# ============================================
+# Docker Compose - Student Attention System
+# ============================================
+version: "3.8"
+
+services:
+  attention-system:
+    build: .
+    container_name: student-attention
+    ports:
+      - "8000:8000"        # Dashboard
+    volumes:
+      - ./data:/app/data   # Persistent DB
+      - ./exports:/app/exports
+      - ./logs:/app/logs
+    devices:
+      - /dev/video0:/dev/video0  # Webcam access
+    environment:
+      - ATTENTION_DB_PATH=/app/data/attention_system.db
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2.0"
+

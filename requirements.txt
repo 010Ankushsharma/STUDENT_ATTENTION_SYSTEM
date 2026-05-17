@@ -1,0 +1,28 @@
+# ════════════════════════════════════════════════
+# Student Attention Detection System v1.0.0
+# Complete Dependencies
+# ════════════════════════════════════════════════
+
+# ── Computer Vision ──
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+
+# ── Numerical ──
+numpy>=1.24.0
+scipy>=1.11.0
+
+# ── Web Dashboard ──
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+websockets>=12.0
+
+# ── Database ──
+# sqlite3 is built into Python stdlib (no install needed)
+
+# ── Export ──
+openpyxl>=3.1.0
+
+# ── Testing (install with: pip install -e ".[dev]") ──
+# pytest>=7.4.0
+# httpx>=0.25.0
+# pytest-cov>=4.1.0
