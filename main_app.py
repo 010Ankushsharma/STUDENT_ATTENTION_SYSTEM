@@ -269,9 +269,13 @@ class StudentAttentionSystem:
         self._processors: Dict[int, StudentProcessor] = {}
 
         # ── Dashboard overlay ──
+<<<<<<< HEAD
        # self.dashboard_drawer = DashboardDrawer()
         from dashboard.clean_overlay import CleanOverlay
         self.dashboard_drawer = CleanOverlay()
+=======
+        self.dashboard_drawer = DashboardDrawer()
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
         # ── Database ──
         logger.info("Initializing database...")
@@ -435,10 +439,17 @@ class StudentAttentionSystem:
                 gaze_dir = gaze_result.direction_label
                 drowsy_level = drowsy_result.level.value
 
+<<<<<<< HEAD
                 # frame = proc.eye_vis.draw(frame, lm, pw, ph,
                 #                           blink_metrics=blink_metrics,
                 #                           drowsiness=drowsy_result,
                 #                           gaze=gaze_result)
+=======
+                frame = proc.eye_vis.draw(frame, lm, pw, ph,
+                                          blink_metrics=blink_metrics,
+                                          drowsiness=drowsy_result,
+                                          gaze=gaze_result)
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
             except Exception as e:
                 logger.debug(f"Eye tracking error S{sid}: {e}")
 
@@ -451,8 +462,13 @@ class StudentAttentionSystem:
                     attention = proc.attn_judge.evaluate(pose)
                     yaw, pitch = pose.yaw, pose.pitch
                     head_dir = direction.combined_label
+<<<<<<< HEAD
                     # frame = proc.pose_vis.draw(frame, pose, direction,
                     #                           attention, face_index=sid)
+=======
+                    frame = proc.pose_vis.draw(frame, pose, direction,
+                                              attention, face_index=sid)
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
             except Exception as e:
                 logger.debug(f"Head pose error S{sid}: {e}")
 

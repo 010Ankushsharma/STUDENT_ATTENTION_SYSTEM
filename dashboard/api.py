@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 ﻿
+=======
+
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 """
 dashboard/api.py
 FastAPI application with all REST endpoints and WebSocket handler.
 
 API Endpoints:
+<<<<<<< HEAD
     GET  /                        â†’ Dashboard HTML page
     GET  /api/status              â†’ System status
     GET  /api/session/current     â†’ Current session info
@@ -18,6 +23,22 @@ API Endpoints:
     GET  /api/export/excel        â†’ Download Excel report
     GET  /video_feed              â†’ MJPEG live stream
     WS   /ws                      â†’ Real-time WebSocket updates
+=======
+    GET  /                        → Dashboard HTML page
+    GET  /api/status              → System status
+    GET  /api/session/current     → Current session info
+    GET  /api/students            → All student scores
+    GET  /api/students/{id}       → Single student detail
+    GET  /api/alerts              → Recent alerts
+    GET  /api/analytics/overview  → Session analytics
+    GET  /api/analytics/timeline  → Score timeline data
+    GET  /api/analytics/ranking   → Student ranking
+    GET  /api/analytics/distribution → State distribution
+    GET  /api/export/csv          → Download CSV report
+    GET  /api/export/excel        → Download Excel report
+    GET  /video_feed              → MJPEG live stream
+    WS   /ws                      → Real-time WebSocket updates
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 """
 import os
 import csv
@@ -80,17 +101,28 @@ def create_app(scoring=None, db=None, analytics=None,
         allow_headers=["*"],
     )
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ HTML Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── HTML Dashboard ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/", response_class=HTMLResponse)
     async def dashboard_page():
         """Serve the main dashboard HTML page."""
         html_path = Path(__file__).parent / "templates" / "index.html"
         if html_path.exists():
+<<<<<<< HEAD
             return HTMLResponse(content=html_path.read_text(encoding="utf-8"), status_code=200)
         return HTMLResponse(content="<h1>Dashboard template not found</h1>", status_code=500)
 
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ System Status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+            return HTMLResponse(content=html_path.read_text(), status_code=200)
+        return HTMLResponse(content="<h1>Dashboard template not found</h1>", status_code=500)
+
+    # ──────────── System Status ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/api/status")
     async def get_status():
@@ -105,7 +137,11 @@ def create_app(scoring=None, db=None, analytics=None,
             "table_counts": _db_manager.get_table_counts() if _db_manager else {},
         }
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Session â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── Session ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/api/session/current")
     async def get_current_session():
@@ -121,7 +157,11 @@ def create_app(scoring=None, db=None, analytics=None,
             "total_alerts": len(_scoring_pipeline.get_alerts()),
         }
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Students â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── Students ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/api/students")
     async def get_all_students():
@@ -172,7 +212,11 @@ def create_app(scoring=None, db=None, analytics=None,
             "db_summary": summary,
         }
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Alerts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── Alerts ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/api/alerts")
     async def get_alerts():
@@ -193,7 +237,11 @@ def create_app(scoring=None, db=None, analytics=None,
             })
         return {"alerts": list(reversed(result)), "total": len(alerts)}
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Analytics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── Analytics ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/api/analytics/overview")
     async def get_analytics_overview():
@@ -240,7 +288,11 @@ def create_app(scoring=None, db=None, analytics=None,
         _live_logger.flush()
         return {"distribution": _analytics_engine.state_distribution(sid)}
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── Export ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/api/export/csv")
     async def export_csv():
@@ -322,7 +374,11 @@ def create_app(scoring=None, db=None, analytics=None,
             # Fallback to CSV
             return await export_csv()
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Video Feed (MJPEG) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── Video Feed (MJPEG) ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     @app.get("/video_feed")
     async def video_feed():
@@ -342,7 +398,11 @@ def create_app(scoring=None, db=None, analytics=None,
             media_type="multipart/x-mixed-replace; boundary=frame"
         )
 
+<<<<<<< HEAD
     # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ WebSocket (Real-time Updates) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+=======
+    # ──────────── WebSocket (Real-time Updates) ────────────
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
 
     connected_clients: List[WebSocket] = []
 
@@ -393,4 +453,7 @@ def create_app(scoring=None, db=None, analytics=None,
 
     return app
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c9284a3ad6c0217a589474a09ab81a46493769a6
