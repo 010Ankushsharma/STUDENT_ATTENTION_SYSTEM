@@ -162,3 +162,10 @@ make lint
 # Check system info
 make info
 ```
+
+
+<!-- python3.10 -m venv venv --!>
+venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .
+python run_system.py
