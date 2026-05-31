@@ -6,7 +6,7 @@
 7 integrated modules • SQLite database • Web dashboard • Docker-ready  
 
 ---
-
+  
 ## ⚡ One-Command Start
 
 ```bash
