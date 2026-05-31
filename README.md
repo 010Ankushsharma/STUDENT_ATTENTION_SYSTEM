@@ -2,7 +2,7 @@
 # 🎓 Student Attention Detection System v1.0.0
 
 **Complete AI-powered real-time classroom attention monitoring system.**
-
+   
 7 integrated modules • SQLite database • Web dashboard • Docker-ready  
 
 ---
