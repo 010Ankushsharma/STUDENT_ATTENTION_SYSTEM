@@ -3,7 +3,7 @@
 
 **Complete AI-powered real-time classroom attention monitoring system.**
    
-7 integrated modules • SQLite database • Web dashboard • Docker-ready  
+7 integrated modules • SQLite database • Web dashboard • Docker-ready    
 
 ---
   
